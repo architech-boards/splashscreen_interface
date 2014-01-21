@@ -1,0 +1,443 @@
+<head>
+    <script>
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Debug utils
+
+        /**
+         * Prints the content of a variable inside a message box.
+         *
+         * @param variable          The variable to debug.
+         */
+        function print_variable( variable ) {
+            var output          = '';
+            for( property in variable ) {
+                output          += property + ': ' + variable[ property ] + '; ';
+            }
+            alert( output );
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Helpers functions used to communicate information between pages.
+
+        /**
+          * The technique used here to exchange information between pages is by means of the URL.
+          * The URL gets append by a string like ?key1=value&key2=value...
+          */
+
+        /**
+          * Given the search path of the URL (window.location.search), this query gets an 
+          * associative array of the <key,value> couples.
+          *
+          * @param _query                       The part of the URL containing the information
+          *                                     to extract.
+          * @return                             An associative array of <key,value> couples.
+          */
+        function read_page_parameters( _query ) {
+            var parameters                      = {};
+            var query                           = _query;
+            if( query.substring( 0, 1 ) == '?' ) {
+                query                           = query.substring( 1 );
+            }
+            while( query != "" )
+            {
+                var first_delimiter             = query.indexOf( "=" );
+                if( first_delimiter == -1 )
+                {
+                    break;
+                }
+                var second_delimiter            = query.indexOf( "&" );
+                var key                         = query.substring( 0, first_delimiter );
+                var value                       = "";
+                if( second_delimiter == -1 )
+                {
+                    value                       = query.substring( first_delimiter + 1 );
+                    query                       = "";
+                }
+                else
+                {
+                    value                       = query.substring( first_delimiter + 1, second_delimiter );
+                    query                       = query.substring( second_delimiter + 1 );
+                }
+                parameters[ unescape( key ) ]   = unescape( value );
+            }
+            return parameters;
+        }
+
+        /**
+          * Given an associative array of <key,value> couples, this function gets
+          * the string to append to URL.
+          *
+          * @param parameters                   The associative array containing <key,value> couples
+          *                                     to add to the URL.
+          * @return                             The string representing the given information, ready
+          *                                     to be appended to the URL.
+          */
+        function get_page_parameters_string( parameters ) {
+            var query                           =  "?";
+            var i                               =  0;
+            for( var key in parameters ) {
+                if( i != 0 )
+                {
+                    query                       += "&";
+                }
+                i++;
+                query                           += escape( key ) + "=" + escape( parameters[ key ] );
+            }
+            return query;
+        }        
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // This are just graphics helpers function. You should not rely on them
+
+        function get_div( name, image, description, page_to_open, page_parameters )
+        {
+            var html                = "";
+            html                    +=  "<br>";
+            html                    +=  "<div class=\"rounded\" style=\"cursor:pointer\" onmouseover=\"this.className='rounded-on-over';\" \
+                                         onmouseout=\"this.className='rounded'\" onclick=\"location.href='" + page_to_open + get_page_parameters_string( page_parameters ) + "';\">";
+            html                    += "    <table cellspacing=0 cellpadding=5 border=0 width=650> \
+                                            <tr>\
+                                                <td width=208 align=center valign=top>\
+                                                    <img src=\"" + image + "\" width=\"200px\" height=\"auto\" style=\"border-radius:5px;\" align=\"top\">\
+                                                </td>\
+                                                <td valign=top align=left>\
+                                                    <b>" + name + "</b><br><hr>\
+                                                    " + description + "\
+                                                </td>\
+                                            </tr>\
+                                            </table> \
+                                         </div> \
+                                         <br>";           
+            /*                                         
+            html                    +=      "<b>" + name + "</b><br><hr>";
+            html                    +=      "<table cellspacing=0 cellpadding=0 border=0 width=100%>";
+            html                    +=      "<tr>";
+            html                    +=          "<td valign=\"top\" align=\"center\">";
+            html                    +=              "<img src=\"" + image + "\" width=\"auto\" height=\"100px\" style=\"border-radius:5px;\" align=\"top\">&nbsp;";
+            html                    +=          "</td>";
+            html                    +=          "<td width=100% align=\"left\" valign=\"top\">";
+            html                    +=              description;
+            html                    +=          "</td>";
+            html                    +=      "</tr>";
+            html                    +=      "</table>";
+            html                    +=  "</div>";
+            html                    +=  "<br>";
+            */
+
+            return html;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Host paths helper functions.
+
+        /**
+          * Given a path relative to the splashscreen application, will return the corresponding
+          * absolute path
+          *
+          * @param relative_path        The relative path.
+          * @return                     The absolute path related to the relative one.
+          */
+        function get_absolute_path( relative_path ) {
+            return launcher.get_absolute_path( relative_path );
+        }
+
+        /**
+          * Given the alias of the partner, this function will return the absolute path where
+          * all his related data is contained within the file system.
+          *
+          * @param partner_alias        The partner alias.
+          * @return                     The partner directory absolute path on the disk.
+          */
+        function get_partner_directory( partner_alias ) {
+            return launcher.get_partner_directory( partner_alias );
+        }
+
+        /**
+          * Given the alias of the partner and the alias of the board, this function will
+          * get the corresponding directory absolute path within the file system. This function
+          * makes sense only when the partner directory layout has not been customized.
+          * 
+          * @param partner_alias        The partner alias.
+          * @param board_alias          The board alias.
+          * @return                     The absolute path of the directory containing the
+          *                             information related the to partner board.
+          */
+        function get_partner_board_directory( partner_alias, board_alias ) {
+            return launcher.get_partner_board_directory( partner_alias, board_alias );
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // ArchiTech boards information
+
+        /**
+          * Extracts board information from the concatenated list of boards information.
+          * Do not call this function directly.
+          *
+          * @param boards_list          The list of all boards information.
+          * @param counter              Object used to remember parsing position across calls.
+          * @return                     An associative array will all information on the board
+          *                             in it.
+          */
+        function get_board_info_from_array( boards_list, counter ) {
+            var board_def                           = {};
+            board_def[ "alias"              ]       = boards_list[ counter.i++ ];
+            board_def[ "name"               ]       = boards_list[ counter.i++ ];
+            board_def[ "image"              ]       = boards_list[ counter.i++ ];
+            board_def[ "short_description"  ]       = boards_list[ counter.i++ ];
+            board_def[ "long_description"   ]       = boards_list[ counter.i++ ];
+            board_def[ "run_hob"            ]       = boards_list[ counter.i++ ];
+            board_def[ "run_bitbake"        ]       = boards_list[ counter.i++ ];
+            board_def[ "run_cross-compiler" ]       = boards_list[ counter.i++ ];
+            board_def[ "run_eclipse"        ]       = boards_list[ counter.i++ ];
+            board_def[ "run_qt-creator"     ]       = boards_list[ counter.i++ ];
+            board_def[ "run_images-folder"  ]       = boards_list[ counter.i++ ];
+            board_def[ "run_documentation"  ]       = boards_list[ counter.i++ ];
+            board_def[ "run_update"         ]       = boards_list[ counter.i++ ];
+            return board_def;
+        }
+
+        /**
+          * This function gets an array of associative arrays each containing information
+          * related to the corresponding board.
+          *
+          * @return                     An array of associative arrays containing boards
+          *                             information.
+          */
+        function get_architech_boards_list() {
+            var boards_list                         = launcher.get_architech_boards_list();
+            var final_list                          = new Array();
+            var counter                             = { i: 0 };
+            for( ; counter.i < boards_list.length; )
+            {
+                final_list.push( get_board_info_from_array( boards_list, counter ) );
+            }
+            return final_list;
+        }
+
+        /**
+          * Given a board alias this function gets its information as an associative
+          * array.
+          *
+          * @param board_alias          The internal name used to identify the board.
+          * @return                     An associative array filled with board information.
+          */
+        function get_architech_board_info( board_alias ) {
+            var board_info          = new Array();
+            var counter             = { i: 0 };
+            board_info              = launcher.get_architech_board_info( board_alias );
+            return get_board_info_from_array( board_info, counter );
+        }       
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Functions used to run programs on the host machine
+
+        /**
+          * Given the program filepath, this function get it running and wait for its completion.
+          *
+          * @param program              The program filepath.
+          * @param change_directory     If true, the working directory of the new process will be
+          *                             the directory containing the executable itself.
+          * @return                     The process exit code.
+          */
+        function process_execute( program, change_directory ) { 
+            return launcher.process_execute( program, change_directory );
+        }
+
+        /**
+          * Given the program filepath and its parameters, this function get it running and wait
+          * for its completion.
+          *
+          * @param program              The program filepath.
+          * @param args                 The list of arguments used to run the program.
+          * @param change_directory     If true, the working directory of the new process will be
+          *                             the directory containing the executable itself.
+          * @return                     The process exit code.
+          */
+        function process_execute( program, args, change_directory ) {
+            return launcher.process_execute( program, args, change_directory );
+        }
+
+        /**
+          * Given the program filepath, this function get it running and doesn not wait for its completion.
+          *
+          * @param program              The program filepath.
+          * @param change_directory     If true, the working directory of the new process will be
+          *                             the directory containing the executable itself.
+          * @return                     True on success, false otherwise.
+          */
+        function process_start_detached( program, change_directory ) {
+            return launcher.process_start_detached( program, change_directory );
+        }
+
+        /**
+          * Given the program filepath and its parameters, this function get it running and doesn
+          * not wait for its completion.
+          *
+          * @param program              The program filepath.
+          * @param args                 The list of arguments used to run the program.
+          * @param change_directory     If true, the working directory of the new process will be
+          *                             the directory containing the executable itself.
+          * @return                     True on success, false otherwise.
+          */
+        function process_start_detached( program, args, change_directory ) {
+            return launcher.process_start_detached( program, args, change_directory );
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Navigation helpers
+
+        /**
+          * This function will reset the browser to the home page.
+          */
+        function go_home() {
+            launcher.go_home();
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Functions used to exit from the splashscreen application
+
+        /**
+          * This function causes the browser to exit with the specified exit code.
+          *
+          * @param code                 The exit code.
+          */
+        function exit_from_application( code ) {
+            launcher.exit_from_application( code );
+        }
+
+        /**
+          * This function causes the browser to exit. Do not make any assumption of value
+          * returned to the parent process.
+          */
+        function exit_from_application() {
+            launcher.exit_from_application();
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        /**
+          * Extracts partner information from the concatenated list of partners information.
+          * Do not call this function directly.
+          *
+          * @param partners_list        The list of all partners information.
+          * @param counter              Object used to remember parsing position across calls.
+          * @return                     An associative array will all information on the partner
+          *                             in it.
+          */
+        function get_partner_info_from_array( partners_list, counter ) {
+            var partner_def                         = {};
+            partner_def[ "alias"              ]     = partners_list[ counter.i++ ];
+            partner_def[ "name"               ]     = partners_list[ counter.i++ ];
+            partner_def[ "logo"               ]     = partners_list[ counter.i++ ];
+            partner_def[ "short_description"  ]     = partners_list[ counter.i++ ];
+            partner_def[ "long_description"   ]     = partners_list[ counter.i++ ];
+            partner_def[ "index"              ]     = partners_list[ counter.i++ ];
+            if( partner_def[ "index" ] == "" )
+            {
+                partner_def[ "index" ]              = "partner_boards.html";
+            }
+            return partner_def;
+        }
+
+        /**
+          * This function gets an array of associative arrays each containing information
+          * related to the corresponding partner information.
+          *
+          * @return                     An array of associative arrays containing partners
+          *                             information.
+          */
+        function get_partners_list() {
+            var partners_list                       = launcher.get_partners_list();
+            var final_list                          = new Array();
+            var counter                             = { i: 0 };
+            for( ; counter.i < partners_list.length;  )
+            {
+                final_list.push( get_partner_info_from_array( partners_list, counter ) );
+            }
+            return final_list;
+        }
+
+        /**
+          * Given a partner alias this function gets its information as an associative
+          * array.
+          *
+          * @param board_alias          The internal name used to identify the partner.
+          * @return                     An associative array filled with partner information.
+          */
+        function get_partner_info( partner_alias ) {
+            var partner_info        = new Array();
+            var counter             = { i: 0 };
+            partner_info            = launcher.get_partner_info( partner_alias );
+            return get_partner_info_from_array( partner_info, counter );
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Set of functions used to extract information on boards made by a partner.
+
+        /**
+          * Given a partner alias and a board alias this function gets the partner board
+          * information as an associative array.
+          *
+          * @param partner_alias        The internal name used to identify the partner.
+          * @param board_alias          The internal name used to identify the board.
+          * @return                     An associative array filled with board information.
+          */
+        function get_partner_board_info( partner_alias, board_alias ) {
+            var board_info                          = new Array();
+            var counter                             = { i: 0 };
+            board_info                              = launcher.get_partner_board_info( partner_alias, board_alias );
+            return get_board_info_from_array( board_info, counter );
+        }
+
+        /**
+          * This function gets an array of associative arrays each containing information
+          * related to the corresponding partner board information.
+          *
+          * @param partner_alias        The internal name used to identify the partner.
+          * @return                     An array of associative arrays containing boards
+          *                             information.
+          */
+        function get_partner_boards_list( partner_alias ) {
+            var boards_list                         = launcher.get_partner_boards_list( partner_alias );
+            var final_list                          = new Array();
+            var counter                             = { i: 0 };
+            for( ; counter.i < boards_list.length; )
+            {
+                final_list.push( get_board_info_from_array( boards_list, counter ) );
+            }
+            return final_list;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Set of functions used to work with the interface
+
+        function update_interface() {
+            if( launcher.update_interface() )
+            {
+                return false;
+            }
+            return true;
+        }
+
+        function update_splashscreen() {
+            var args                                = new Array();
+            var interface_directory                 = launcher.get_interface_directory();
+            args.push( get_absolute_path( "." ) );
+            return process_start_detached( interface_directory + "/scripts/update_splashscreen", args, true );
+        }
+
+        function update() {
+            if( !update_interface() || !update_splashscreen() )
+            {
+                alert( "Impossible to run the update. Please, double check your internet connection." );
+                return;
+            }
+            exit_from_application();
+        }
+    </script>
+</head>
+<frameset rows="*,40px">
+    <frame src="home.html"   name="main"   frameborder="0"/>
+    <frame src="bottom.html" name="bottom" frameborder="0"/>
+</frameset>

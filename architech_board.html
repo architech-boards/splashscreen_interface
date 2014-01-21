@@ -1,0 +1,87 @@
+<html>
+    <head>
+        <link href="css/style.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <script>
+        function get_action_div( action_name, on_click_command )
+        {
+            var html                        =   "";
+            html                            +=  "<br>";
+            html                            +=  "<div class=\"rounded\" style=\"cursor:pointer\" onmouseover=\"this.className='rounded-on-over';\" \
+                                                onmouseout=\"this.className='rounded'\" onclick=\"" + on_click_command + "\">";
+            html                            +=      action_name + "<span style=\"float: right\">&rarr;</span>"
+            html                            +=  "</div>"
+            return html;       
+        }
+
+        function get_action_div_process( action_name, action_program, detach, change_directory ) {
+            var wrapper_execute             =   "top.process_execute";
+            if( detach )
+            {
+                wrapper_execute             =   "top.process_start_detached";
+            }
+            var command                     = wrapper_execute + "( '" + action_program + "', " + change_directory + " );"
+            return get_action_div( action_name, command );
+        }
+
+        function get_action_div_link( action_name, action_link ) {
+            return get_action_div( action_name, "location.href='" + action_link + "';" );
+        }
+    </script>
+    <body>
+         <div class="layout">
+            <img src="images/architech-logo.png"/><br>
+            <div class="center">
+                <br>
+                <script>
+                    var page_parameters             = top.read_page_parameters( window.location.search );
+                    var board_info                  = top.get_architech_board_info( page_parameters[ "board" ] );
+                    var html                        = "";
+
+                    // Board information
+                    var board_alias                 = board_info[ "alias"              ];
+                    var board_name                  = board_info[ "name"               ];
+                    var board_image                 = board_info[ "image"              ];
+                    var board_short_description     = board_info[ "short_description"  ];
+                    var board_long_description      = board_info[ "long_description"   ];
+
+                    // Commands
+                    var run_hob                     = board_info[ "run_hob"            ];
+                    var run_bitbake                 = board_info[ "run_bitbake"        ];
+                    var run_cross_compiler          = board_info[ "run_cross-compiler" ];
+                    var run_eclipse                 = board_info[ "run_eclipse"        ];
+                    var run_qt_creator              = board_info[ "run_qt-creator"     ];
+                    var run_images_folder           = board_info[ "run_images-folder"  ];
+                    var run_documentation           = board_info[ "run_documentation"  ];
+                    var run_update                  = board_info[ "run_update"         ];
+
+                    // Setting up description
+                    html                            +=  "<div class=\"text-center\">";
+                    html                            +=      "<h1>" + board_name + "</h1>";
+                    html                            +=  "</div>";
+                    html                            +=  "What do you want to do?<br>";
+
+                    // Adding items
+                    html                            +=  get_action_div_process( "Run hob",                  run_hob,            true, true );
+                    html                            +=  get_action_div_process( "Run bitbake",              run_bitbake,        true, true );
+                    html                            +=  get_action_div_process( "Manually cross compile",   run_cross_compiler, true, true );
+                    html                            +=  get_action_div_process( "Develop with Eclipse",     run_eclipse,        true, true );
+                    html                            +=  get_action_div_process( "Develop with Qt Creator",  run_qt_creator,     true, true );
+                    html                            +=  get_action_div_process( "Open images folder",       run_images_folder,  true, true );
+                    html                            +=  get_action_div_process( "View documentation",       run_documentation,  true, true );
+                    html                            +=  get_action_div_process( "Update board sources",     run_update,         true, true );
+
+                    // Setting up description
+                    html                            +=  "<br><br>";
+                    html                            +=  "<div class=\"text-center\">";
+                    html                            +=      "<img src=\"" + board_image + "\" width=\"700px\" height=\"auto\" align=\"bottom\" style=\"border-radius:15px;\">";
+                    html                            +=  "</div>";
+                    html                            +=  "<br>" + board_long_description + "<br><br>";                   
+
+                    html                            +=  "<br><a href=\"architech_boards.html\">&larr;&nbsp;back</a>";
+                    document.write( html );
+                </script>
+            </div>
+        </div>
+    </body>
+</html>

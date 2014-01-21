@@ -1,0 +1,46 @@
+<html>
+    <head>
+         <head>
+            <link href="css/style.css" rel="stylesheet" type="text/css"/>
+        </head>
+        <script>
+            var partner_alias                       = ( top.read_page_parameters( window.location.search ) )[ "partner" ];
+            var partner_info                        = top.get_partner_info( partner_alias );
+
+            function generate_boards_list() {
+                var boards_list                     = top.get_partner_boards_list( partner_alias );
+                var text                            = "";
+                for( var i = 0; i < boards_list.length; i++ )
+                {
+                    var board_alias                 = boards_list[ i ][ "alias"             ];
+                    var board_name                  = boards_list[ i ][ "name"              ];
+                    var board_image                 = boards_list[ i ][ "image"             ];
+                    var board_short_description     = boards_list[ i ][ "short_description" ];
+                    var page_parameters             = {};
+                    page_parameters[ "partner" ]    = partner_alias;
+                    page_parameters[ "board"   ]    = board_alias;
+                    text                            = text + top.get_div( board_name, board_image, board_short_description, "partner_board.html", page_parameters );
+                }
+                document.write( text );
+            }
+        </script>
+    </head>
+    <body>
+        <div class="layout">
+            <script>document.write( "<img src=\"" + partner_info[ "logo" ] + "\"/>" );</script>
+            <br>
+            <div class="center">
+                <br>
+                <div class="text-center">
+                    <h1><script>document.write( partner_info[ "name" ] );</script> boards</h1>
+                </div>
+                Please, select your board<br>
+                <br>
+                <script>
+                    generate_boards_list();
+                </script>
+                <br><a href="partners.html">&larr;&nbsp;back</a>
+            </div>
+        </div>
+    </body>
+</html>

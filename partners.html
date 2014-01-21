@@ -1,0 +1,42 @@
+<html>
+    <head>
+         <head>
+            <link href="css/style.css" rel="stylesheet" type="text/css"/>
+        </head>
+        <script>
+            function generate_partners_list() {
+                var partners_list                   = top.get_partners_list();
+                var text                            = "";
+                for( var i = 0; i < partners_list.length; i++ )
+                {
+                    var partner_alias               = partners_list[ i ][ "alias"             ];
+                    var partner_name                = partners_list[ i ][ "name"              ];
+                    var partner_logo                = partners_list[ i ][ "logo"              ];
+                    var partner_short_description   = partners_list[ i ][ "short_description" ];
+                    var partner_page                = partners_list[ i ][ "index"             ];
+                    var page_parameters             = {};
+                    page_parameters[ "partner" ]    = partner_alias;
+                    text                            += top.get_div( partner_name, partner_logo, partner_short_description, partner_page, page_parameters );
+                }
+                document.write( text );
+            }
+        </script>
+    </head>
+    <body>
+        <div class="layout">
+            <img src="images/architech-logo.png"/><br>
+            <div class="center">
+                <br>
+                <div class="text-center">
+                    <h1>ArchiTech partners</h1>
+                </div>
+                Please, select a partner<br>
+                <br>
+                <script>
+                    generate_partners_list();
+                </script>
+                <br><a href="home.html">&larr;&nbsp;back</a>
+            </div>
+        </div>
+    </body>
+</html>
