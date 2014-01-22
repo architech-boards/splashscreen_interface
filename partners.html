@@ -7,6 +7,14 @@
             function generate_partners_list() {
                 var partners_list                   = top.get_partners_list();
                 var text                            = "";
+                if( partners_list.length > 0 )
+                {
+                    text                            += "Please, select a partner<br><br>";
+                }
+                else
+                {
+                    text                            += "There are no partners right now<br><br>";
+                }
                 for( var i = 0; i < partners_list.length; i++ )
                 {
                     var partner_alias               = partners_list[ i ][ "alias"             ];
@@ -30,8 +38,7 @@
                 <div class="text-center">
                     <h1>ArchiTech partners</h1>
                 </div>
-                Please, select a partner<br>
-                <br>
+
                 <script>
                     generate_partners_list();
                 </script>
