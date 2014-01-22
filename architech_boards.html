@@ -7,6 +7,14 @@
             function generate_boards_list() {
                 var boards_list                     = top.get_architech_boards_list();
                 var text                            = "";
+                if( boards_list.length > 0 )
+                {
+                    text                            += "Please, select your board:<br><br>";
+                }
+                else
+                {
+                    text                            += "There are no boards yet.<br><br>";
+                }
                 for( var i = 0; i < boards_list.length; i++ )
                 {
                     var board_alias                 = boards_list[ i ][ "alias"             ];
@@ -28,9 +36,7 @@
                 <br>
                 <div class="text-center">
                     <h1>ArchiTech boards</h1>
-                </div>
-                Please, select your board<br>
-                <br>
+                </div>                
                 <script>
                     generate_boards_list();
                 </script>
