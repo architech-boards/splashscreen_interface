@@ -427,7 +427,7 @@
             return process_start_detached( interface_directory + "/scripts/update_splashscreen", args, true );
         }
 
-        function update() {
+        function update_launcher() {
             if( !update_interface() || !update_splashscreen() )
             {
                 alert( "Impossible to run the update. Please, double check your internet connection." );
@@ -435,6 +435,9 @@
             }
             exit_from_application();
         }
+
+	function look_for_new_boards() {
+	}	
     </script>
 </head>
 <frameset rows="*,40px">

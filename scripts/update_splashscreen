@@ -1,12 +1,9 @@
 #!/bin/bash
+[ $# -eq 1 ] || exit 1
 SPLASH_SCREEN_DIRECTORY=$1
-ASK_PASS_PROGRAM=`pwd`/ask_for_sudo_password.sh
-echo $ASK_PASS_PROGRAM
-export SUDO_ASKPASS=`pwd`/ask_for_sudo_password.sh
 cd ${SPLASH_SCREEN_DIRECTORY}
-# Update with git
-#zenity --info --title "Error" --text "Impossible to perform the update. Please, double check your Internet connection." --no-wrap
-sudo -A echo "Ciao mamma"
-#sleep 5
-#./splashscreen
-exit 0
+sleep 2
+git pull
+UPDATE_RESULT=$?
+./splashscreen
+exit ${UPDATE_RESULT}
