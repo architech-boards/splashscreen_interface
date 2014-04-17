@@ -167,6 +167,16 @@
             return launcher.get_partner_board_directory( partner_alias, board_alias );
         }
 
+        /**
+          * Return the absolute path of the splashscreen interface
+          *
+          * @return                     The absolute path of the splashscreen interface
+          *
+          */
+        function get_splashscreen_interface_directory() {
+            return launcher.get_interface_directory()
+        }
+
         /////////////////////////////////////////////////////////////////////////////////////
         // ArchiTech boards information
 
@@ -193,7 +203,8 @@
             board_def[ "run_qt-creator"     ]       = boards_list[ counter.i++ ];
             board_def[ "run_images-folder"  ]       = boards_list[ counter.i++ ];
             board_def[ "run_documentation"  ]       = boards_list[ counter.i++ ];
-            board_def[ "run_update"         ]       = boards_list[ counter.i++ ];
+            board_def[ "run_install"        ]       = boards_list[ counter.i++ ];
+            board_def[ "run_update"         ]       = get_splashscreen_interface_directory() + "/scripts/run_update";
             return board_def;
         }
 

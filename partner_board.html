@@ -20,13 +20,13 @@
             return html;       
         }
 
-        function get_action_div_process( action_name, action_program, detach, change_directory ) {
-            var wrapper_execute                         =   "top.process_execute";
+        function get_action_div_process( action_name, action_program, args, detach, change_directory ) {
+            var wrapper_execute             =   "top.process_execute";
             if( detach )
             {
-                wrapper_execute                         =   "top.process_start_detached";
+                wrapper_execute             =   "top.process_start_detached";
             }
-            var command                                 = wrapper_execute + "( '" + action_program + "', " + change_directory + " );"
+            var command                     = wrapper_execute + "( '" + action_program + "', '" + args + "', " + change_directory + " );"
             return get_action_div( action_name, command );
         }
 
@@ -58,6 +58,7 @@
                     var run_qt_creator                  = board_info[ "run_qt-creator"     ];
                     var run_images_folder               = board_info[ "run_images-folder"  ];
                     var run_documentation               = board_info[ "run_documentation"  ];
+                    var run_install                     = board_info[ "run_install"        ];
                     var run_update                      = board_info[ "run_update"         ];
 
                     // Title
@@ -67,14 +68,14 @@
                     html                                +=  "What do you want to do?<br>";
 
                     // Adding items
-                    html                                +=  get_action_div_process( "Run hob",                  run_hob,            true, true );
-                    html                                +=  get_action_div_process( "Run bitbake",              run_bitbake,        true, true );
-                    html                                +=  get_action_div_process( "Manually cross compile",   run_cross_compiler, true, true );
-                    html                                +=  get_action_div_process( "Develop with Eclipse",     run_eclipse,        true, true );
-                    html                                +=  get_action_div_process( "Develop with Qt Creator",  run_qt_creator,     true, true );
-                    html                                +=  get_action_div_process( "Open images folder",       run_images_folder,  true, true );
-                    html                                +=  get_action_div_process( "View documentation",       run_documentation,  true, true );
-                    html                                +=  get_action_div_process( "Update board sources",     run_update,         true, true );
+                    html                            +=  get_action_div_process( "Run hob",                  run_hob,            "",          true, true );
+                    html                            +=  get_action_div_process( "Run bitbake",              run_bitbake,        "",          true, true );
+                    html                            +=  get_action_div_process( "Manually cross compile",   run_cross_compiler, "",          true, true );
+                    html                            +=  get_action_div_process( "Develop with Eclipse",     run_eclipse,        "",          true, true );
+                    html                            +=  get_action_div_process( "Develop with Qt Creator",  run_qt_creator,     "",          true, true );
+                    html                            +=  get_action_div_process( "Open images folder",       run_images_folder,  "",          true, true );
+                    html                            +=  get_action_div_process( "View documentation",       run_documentation,  "",          true, true );
+                    html                            +=  get_action_div_process( "Update board sources",     run_update,         board_alias, true, true );
 
                     // Setting up description
                     html                                +=  "<br><br>";

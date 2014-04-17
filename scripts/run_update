@@ -1,0 +1,34 @@
+#!/bin/bash
+
+#######################################################################################################################
+# Error message
+
+function error_message()
+{
+    local ZENITY_INSTALLED
+    ZENITY_INSTALLED=`dpkg-query -l | grep zenity-common |& awk -F" " '{ print $1 }'`
+
+    if [ "${ZENITY_INSTALLED}" != "ii" ]
+    then
+    echo "Impossible to connect to internet, double check your Internet connection."
+    else
+    zenity --error --text "Impossible to connect to internet, double check your Internet connection."
+    fi
+}
+
+#######################################################################################################################
+# Update splashscreen target board
+
+ROOT_DIRECTORY=`pwd`
+BASEROOT_SDK=${ROOT_DIRECTORY}/../../architech
+BOARD_ALIAS=${1}
+
+cd ${BASEROOT_SDK}/${BOARD_ALIAS}/splashscreen
+git pull
+[ $? -eq 0 ] || { error_message; exit 1; }
+
+#######################################################################################################################
+# Update target board
+
+./run_install
+exit $?
