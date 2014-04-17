@@ -47,5 +47,6 @@ git pull
 #######################################################################################################################
 # Update target board
 
-./run_install
+gnome-terminal --disable-factory -t ${BOARD_ALIAS} -e 'bash -c "./run_install"';
+
 exit $?
