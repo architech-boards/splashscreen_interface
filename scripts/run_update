@@ -1,5 +1,14 @@
 #!/bin/bash
 
+OWNER=${1}
+PARTNER_ALIAS=""
+BOARD_ALIAS=""
+ROOT_DIRECTORY=`pwd`
+BASEROOT_SDK=${ROOT_DIRECTORY}/../../${OWNER}
+
+STRING_INTERNET_ERROR="Impossible to connect to internet, double check your Internet connection."
+STRING_ARGS_ERROR="Parameters used unknown"
+
 #######################################################################################################################
 # Error message
 
@@ -10,22 +19,30 @@ function error_message()
 
     if [ "${ZENITY_INSTALLED}" != "ii" ]
     then
-    echo "Impossible to connect to internet, double check your Internet connection."
+    echo "${1}"
     else
-    zenity --error --text "Impossible to connect to internet, double check your Internet connection."
+    zenity --error --text "${1}"
     fi
 }
 
 #######################################################################################################################
 # Update splashscreen target board
 
-ROOT_DIRECTORY=`pwd`
-BASEROOT_SDK=${ROOT_DIRECTORY}/../../architech
-BOARD_ALIAS=${1}
-
-cd ${BASEROOT_SDK}/${BOARD_ALIAS}/splashscreen
+if [ "${OWNER}" == "architech" ]
+then
+    BOARD_ALIAS=${2}    
+    cd ${BASEROOT_SDK}/${BOARD_ALIAS}/splashscreen
+elif [ "${OWNER}" == "partners" ]
+then
+    PARTNER_ALIAS=${2}
+    BOARD_ALIAS=${3}
+    cd ${BASEROOT_SDK}/${PARTNER_ALIAS}/${BOARD_ALIAS}/splashscreen
+else
+    error_message "${STRING_ARGS_ERROR}"
+    exit 2
+fi
 git pull
-[ $? -eq 0 ] || { error_message; exit 1; }
+[ $? -eq 0 ] || { error_message "${STRING_INTERNET_ERROR}"; exit 1; }
 
 #######################################################################################################################
 # Update target board
