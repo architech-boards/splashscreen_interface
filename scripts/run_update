@@ -41,8 +41,17 @@ else
     error_message "${STRING_ARGS_ERROR}"
     exit 2
 fi
+
 git pull
 [ $? -eq 0 ] || { error_message "${STRING_INTERNET_ERROR}"; exit 1; }
+
+#######################################################################################################################
+# Change branch if necessary
+BRANCH_MANIFEST=`grep -i "${BOARD_ALIAS}" ${BASEROOT_SDK}/../architech-manifest/${OWNER} | awk -F"|" '{print $3}'`
+BRANCH_SPLASHSCREEN=`git branch | grep "*" | awk -F" " '{print $2}'`
+zenity --error --text "${BRANCH_MANIFEST} - ${BRANCH_SPLASHSCREEN} [grep -i "${BOARD_ALIAS}" ${BASEROOT_SDK}/architech-manifest/${OWNER} | awk -F"|" '{print $3}']"
+[ "${BRANCH_MANIFEST}" != "${BRANCH_SPLASHSCREEN}" ] && { git checkout -f ${BRANCH_MANIFEST}; }
+
 
 #######################################################################################################################
 # Update target board

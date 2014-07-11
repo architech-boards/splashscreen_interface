@@ -5,5 +5,6 @@ cd ${SPLASH_SCREEN_DIRECTORY}
 sleep 2
 git pull
 UPDATE_RESULT=$?
+./scripts/install
 ./splashscreen
 exit ${UPDATE_RESULT}
