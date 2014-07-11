@@ -25,6 +25,26 @@ function error_message()
     fi
 }
 
+function upgrade_message()
+{
+    local ZENITY_INSTALLED
+    ZENITY_INSTALLED=`dpkg-query -l | grep zenity-common |& awk -F" " '{ print $1 }'`
+
+    if [ "${ZENITY_INSTALLED}" != "ii" ]
+    then
+    echo "${1} [n/y]"
+        read RISP
+        if [ "${RISP}" != "y" ]
+        then
+            cd .
+        else
+            cd []
+        fi
+    else
+    zenity --question --text "${1}"
+    fi
+}
+
 #######################################################################################################################
 # Update splashscreen target board
 
@@ -49,9 +69,12 @@ git pull
 # Change branch if necessary
 BRANCH_MANIFEST=`grep -i "${BOARD_ALIAS}" ${BASEROOT_SDK}/../architech-manifest/${OWNER} | awk -F"|" '{print $3}'`
 BRANCH_SPLASHSCREEN=`git branch | grep "*" | awk -F" " '{print $2}'`
-zenity --error --text "${BRANCH_MANIFEST} - ${BRANCH_SPLASHSCREEN} [grep -i "${BOARD_ALIAS}" ${BASEROOT_SDK}/architech-manifest/${OWNER} | awk -F"|" '{print $3}']"
-[ "${BRANCH_MANIFEST}" != "${BRANCH_SPLASHSCREEN}" ] && { git checkout -f ${BRANCH_MANIFEST}; }
 
+if [ "${BRANCH_MANIFEST}" != "${BRANCH_SPLASHSCREEN}" ]
+then
+    upgrade_message "There is a important upgrade, it will changes the splashscreen from '${BRANCH_MANIFEST}' version to '${BRANCH_SPLASHSCREEN}' version.\nAll directories will be moved in a new directory named '${BRANCH_SPLASHSCREEN}'.\nSelect 'NO' if you wish upgrade to '${BRANCH_MANIFEST}' version later."
+    [ $? -eq 1 ] || { git checkout -f ${BRANCH_MANIFEST}; mkdir ../${BRANCH_SPLASHSCREEN}; find ../ -maxdepth 1 -mindepth 1 -not -name "splashscreen" -exec mv '{}' ../${BRANCH_SPLASHSCREEN} \;; }
+fi
 
 #######################################################################################################################
 # Update target board
