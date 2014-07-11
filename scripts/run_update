@@ -72,7 +72,7 @@ BRANCH_SPLASHSCREEN=`git branch | grep "*" | awk -F" " '{print $2}'`
 
 if [ "${BRANCH_MANIFEST}" != "${BRANCH_SPLASHSCREEN}" ]
 then
-    upgrade_message "There is a important upgrade, it will changes the splashscreen from '${BRANCH_MANIFEST}' version to '${BRANCH_SPLASHSCREEN}' version.\nAll directories will be moved in a new directory named '${BRANCH_SPLASHSCREEN}'.\nSelect 'NO' if you wish upgrade to '${BRANCH_MANIFEST}' version later."
+    upgrade_message "There is a important upgrade, it will changes the splashscreen from '${BRANCH_MANIFEST}' version to '${BRANCH_SPLASHSCREEN}' version.\nAll directories will be moved in a new directory named '${BRANCH_SPLASHSCREEN}'.\nMore information you can find out in the documentation at the FAQ page.\nSelect 'NO' if you wish upgrade to '${BRANCH_MANIFEST}' version later."
     [ $? -eq 1 ] || { git checkout -f ${BRANCH_MANIFEST}; mkdir ../${BRANCH_SPLASHSCREEN}; find ../ -maxdepth 1 -mindepth 1 -not -name "splashscreen" -exec mv '{}' ../${BRANCH_SPLASHSCREEN} \;; }
 fi
 
