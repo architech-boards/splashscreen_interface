@@ -5,6 +5,6 @@ cd ${SPLASH_SCREEN_DIRECTORY}
 sleep 2
 git pull
 UPDATE_RESULT=$?
-./scripts/install
+gnome-terminal --disable-factory -t "*** Updating Splashscreen, please wait... ***" -e './scripts/install';
 ./splashscreen
 exit ${UPDATE_RESULT}
