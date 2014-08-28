@@ -68,6 +68,7 @@ git pull
 #######################################################################################################################
 # Change branch if necessary
 BRANCH_MANIFEST=`grep -i "${BOARD_ALIAS}" ${BASEROOT_SDK}/../architech-manifest/${OWNER} | awk -F"|" '{print $3}'`
+BRANCH_MANIFEST=`echo ${BRANCH_MANIFEST} | awk -F" " '{print $1}'`
 BRANCH_SPLASHSCREEN=`git branch | grep "*" | awk -F" " '{print $2}'`
 
 if [ "${BRANCH_MANIFEST}" != "${BRANCH_SPLASHSCREEN}" ]
